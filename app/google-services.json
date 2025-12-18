@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "85244455972",
+    "project_id": "inventrytracker-d12cd",
+    "storage_bucket": "inventrytracker-d12cd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:85244455972:android:7c37cfa477ea3eccf07cb1",
+        "android_client_info": {
+          "package_name": "com.example.inventrytracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMr00WRvs2zd9XasI8o95CmYLXr4MeZPg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
