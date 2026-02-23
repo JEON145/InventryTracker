@@ -22,20 +22,14 @@ class UserViewModel(
             }
         }
     }
+
     fun RegisterUser(
         fullName: String,
         email: String,
         password: String,
         callback: (Boolean, String, String) -> Unit
     ) {
-        repository.register(email, password) { success, message ->
-            if (success) {
-                val userId = email   // simple unique ID
-                callback(true, "Registration successful", userId)
-            } else {
-                callback(false, message, "")
-            }
-        }
+        repository.register(fullName, email, password, callback)
     }
 
     fun AddUserToDataBase(
@@ -43,19 +37,17 @@ class UserViewModel(
         user: User,
         callback: (Boolean, String) -> Unit
     ) {
-        repository.addUserToDatabase(userId, user) { success, message ->
-            callback(success, message)
-        }
+        repository.addUserToDatabase(userId, user, callback)
+    }
+
+    fun forgetPassword(
+        email: String,
+        callback: (Boolean, String) -> Unit
+    ) {
+        repository.forgetPassword(email, callback)
+    }
+
+    fun logOut(callback: (Boolean, String) -> Unit) {
+        repository.logOut(callback)
     }
 }
-fun forgetPassword(
-    email: String,
-    callback: (Boolean, String) -> Unit
-) {
-    repository.forgetPassword(email, callback)
-}
-
-
-
-
-

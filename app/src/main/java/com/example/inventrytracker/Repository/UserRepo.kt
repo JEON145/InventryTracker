@@ -11,10 +11,8 @@ interface UserRepo  {
         password: String,
         callback: (Boolean, String) -> Unit
     )
-    fun register(name: String,
-                 email: String,
-                 password: String,
-                 callback: (Boolean, String, String) -> Unit)
+    // In UserRepo.kt
+    fun register(fullName: String, email: String, password: String, callback: (Boolean, String, String) -> Unit) // Add String for userId
 
     fun addUserToDatabase(
         userId: String,

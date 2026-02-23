@@ -1,5 +1,5 @@
+// FILE 2: NetworkScreen.kt
 package com.example.inventrytracker.View
-
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -70,16 +70,16 @@ fun NetworkScreen() {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        StoreCard("Green Market", "0.8 km away", "15 products available")
-        StoreCard("City Grocers", "1.2 km away", "23 products available")
-        StoreCard("Fresh Valley", "2.1 km away", "8 products available")
+        NetworkStoreCard("Green Market", "0.8 km away", "15 products available")
+        NetworkStoreCard("City Grocers", "1.2 km away", "23 products available")
+        NetworkStoreCard("Fresh Valley", "2.1 km away", "8 products available")
 
         Spacer(modifier = Modifier.height(80.dp))
     }
 }
 
 @Composable
-fun StoreCard(name: String, distance: String, products: String) {
+fun NetworkStoreCard(name: String, distance: String, products: String) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -99,7 +99,7 @@ fun StoreCard(name: String, distance: String, products: String) {
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Store,
+                    imageVector = Icons.Default.ShoppingCart,
                     contentDescription = null,
                     tint = Color(0xFF2196F3)
                 )
@@ -114,7 +114,7 @@ fun StoreCard(name: String, distance: String, products: String) {
             }
 
             Icon(
-                imageVector = Icons.Default.ChevronRight,
+                imageVector = Icons.Default.KeyboardArrowRight,
                 contentDescription = null,
                 tint = Color.Gray
             )

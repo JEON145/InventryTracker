@@ -64,3 +64,7 @@ fun ForgetPasswordBody() {
                         unfocusedIndicatorColor = Color.Transparent
                     )
                 )
+            }
+        }
+    }
+}

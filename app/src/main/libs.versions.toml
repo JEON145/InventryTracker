@@ -1,0 +1,5 @@
+
+[libraries]
+# ... other libraries
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version = "1.6.7" }
+    

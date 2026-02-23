@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.inventrytracker.Model.User
 import com.example.inventrytracker.Repository.userRepoImpl
+import com.example.inventrytracker.View.DashboardActivity
 import com.example.inventrytracker.View.Login
 import com.example.inventrytracker.ViewModel.UserViewModel
 import kotlin.jvm.java
@@ -216,7 +217,13 @@ fun StoreRegistrationBody() {
                             )
                             userViewModel.AddUserToDataBase(userId, user) { ok, message ->
                                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                                if (ok) activity.finish()
+                                if (ok) {
+                                    // Navigate to Dashboard
+                                    val intent = Intent(context, DashboardActivity::class.java)
+                                    intent.putExtra("email", storeEmail)
+                                    context.startActivity(intent)
+                                    activity.finish()
+                                }
                             }
                         } else {
                             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()

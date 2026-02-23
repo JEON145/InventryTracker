@@ -36,17 +36,22 @@ class userRepoImpl: UserRepo
     }
 
     override fun register(
-        name: String,
+        fullName: String,
         email: String,
         password: String,
         callback: (Boolean, String, String) -> Unit
     ) {
-        if (email.isNotEmpty() && password.isNotEmpty()) {
-            val userId = email   // simple unique ID for now
-            callback(true, "Registration successful", userId)
-        } else {
-            callback(false, "Invalid email or password", "")
-        }
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val userId = auth.currentUser?.uid ?: ""
+                    // Call the callback with THREE arguments: success, message, and the new userId
+                    callback(true, "Registration successful", userId)
+                } else {
+                    // Call the callback with THREE arguments, with an empty userId on failure
+                    callback(false, task.exception?.message ?: "Registration failed", "")
+                }
+            }
     }
 
 

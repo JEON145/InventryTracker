@@ -1,6 +1,7 @@
 package com.example.inventrytracker.View
 
 import android.app.Activity
+import com.example.inventrytracker.R
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import com.example.inventrytracker.Repository.userRepoImpl
 import com.example.inventrytracker.StoreRegistrationActivity
 import com.example.inventrytracker.ViewModel.UserViewModel
@@ -68,7 +70,7 @@ fun LoginBody() {
         ) {
 
             Image(
-                painter = painterResource(id = R.drawable.f),
+                painter = painterResource(id = R.drawable.img),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -117,10 +119,11 @@ fun LoginBody() {
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
                                 painter = painterResource(
-                                    id = if (passwordVisible)
+                                    id = if (passwordVisible) {
                                         R.drawable.baseline_visibility_24
-                                    else
+                                    } else {
                                         R.drawable.baseline_visibility_off_24
+                                    }
                                 ),
                                 contentDescription = null
                             )
@@ -142,8 +145,7 @@ fun LoginBody() {
                             ).show()
                             return@Button
                         }
-
-                        UserViewModel.loginUser(
+                        viewModel.loginUser(
                             email = email,
                             password = password,
                             onSuccess = {
@@ -156,6 +158,8 @@ fun LoginBody() {
                                 Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
                             }
                         )
+
+
                     },
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 10.dp),
                     modifier = Modifier

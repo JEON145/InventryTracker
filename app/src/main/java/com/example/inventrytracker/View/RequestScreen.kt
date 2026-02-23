@@ -1,13 +1,15 @@
 package com.example.inventrytracker.View
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -54,14 +56,14 @@ fun RequestsScreen() {
 
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             if (selectedTab == 0) {
-                RequestCard(
+                RequestItemCard(
                     from = "Green Market",
                     product = "White Rice 5kg",
                     quantity = "10 bags",
                     status = "Pending",
                     isReceived = true
                 )
-                RequestCard(
+                RequestItemCard(
                     from = "City Grocers",
                     product = "Cooking Oil 1L",
                     quantity = "5 bottles",
@@ -69,7 +71,7 @@ fun RequestsScreen() {
                     isReceived = true
                 )
             } else {
-                RequestCard(
+                RequestItemCard(
                     from = "Fresh Valley",
                     product = "Tomatoes",
                     quantity = "15 kg",
@@ -84,7 +86,7 @@ fun RequestsScreen() {
 }
 
 @Composable
-fun RequestCard(from: String, product: String, quantity: String, status: String, isReceived: Boolean) {
+fun RequestItemCard(from: String, product: String, quantity: String, status: String, isReceived: Boolean) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),

@@ -1,5 +1,6 @@
+// FILE 1: InventryScreen.kt
+// Put this in: com.example.inventrytracker.View
 package com.example.inventrytracker.View
-
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,10 +60,10 @@ fun InventryScreen() {
             modifier = Modifier.height(400.dp),
             userScrollEnabled = false
         ) {
-            item { OverviewCard("24", "Total Products", Icons.Default.Home, Color(0xFF2196F3)) }
-            item { WarningCard("5", "Low Stock", Icons.Default.Warning) }
-            item { OverviewCard("12", "Network Stores", Icons.Default.Home, Color(0xFF4CAF50)) }
-            item { WarningCard("3", "Pending Requests", Icons.Default.Notifications) }
+            item { InventoryOverviewCard("24", "Total Products", Icons.Default.Home, Color(0xFF2196F3)) }
+            item { InventoryWarningCard("5", "Low Stock", Icons.Default.Warning) }
+            item { InventoryOverviewCard("12", "Network Stores", Icons.Default.ShoppingCart, Color(0xFF4CAF50)) }
+            item { InventoryWarningCard("3", "Pending Requests", Icons.Default.Email) }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -79,13 +81,12 @@ fun InventryScreen() {
         InventoryProductCard("Tomatoes", "3 kg left", "Min: 10")
         InventoryProductCard("Cooking Oil", "6 bottles left", "Min: 15")
 
-
         Spacer(modifier = Modifier.height(80.dp))
     }
 }
 
 @Composable
-fun OverviewCard(value: String, label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color) {
+fun InventoryOverviewCard(value: String, label: String, icon: ImageVector, color: Color) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -115,7 +116,7 @@ fun OverviewCard(value: String, label: String, icon: androidx.compose.ui.graphic
 }
 
 @Composable
-fun WarningCard(value: String, label: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
+fun InventoryWarningCard(value: String, label: String, icon: ImageVector) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),

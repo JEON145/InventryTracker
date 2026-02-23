@@ -1,6 +1,6 @@
+// FILE 4: ProfileScreen.kt
 package com.example.inventrytracker.View
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,14 +8,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,15 +68,15 @@ fun ProfileScreen() {
             elevation = CardDefaults.cardElevation(4.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                ProfileMenuItem(Icons.Default.Store, "My Store")
+                ProfileMenuItemRow(Icons.Default.ShoppingCart, "My Store")
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
-                ProfileMenuItem(Icons.Default.Inventry, "My Products")
+                ProfileMenuItemRow(Icons.Default.Home, "My Products")
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
-                ProfileMenuItem(Icons.Default.Notifications, "Notifications")
+                ProfileMenuItemRow(Icons.Default.Notifications, "Notifications")
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
-                ProfileMenuItem(Icons.Default.Settings, "Settings")
+                ProfileMenuItemRow(Icons.Default.Settings, "Settings")
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
-                ProfileMenuItem(Icons.Default.Help, "Help & Support")
+                ProfileMenuItemRow(Icons.Default.Info, "Help & Support")
             }
         }
 
@@ -90,7 +90,7 @@ fun ProfileScreen() {
                 contentColor = Color(0xFFF44336)
             )
         ) {
-            Icon(Icons.Default.Logout, null)
+            Icon(Icons.AutoMirrored.Filled.ExitToApp, null)
             Spacer(modifier = Modifier.width(8.dp))
             Text("Logout")
         }
@@ -100,7 +100,7 @@ fun ProfileScreen() {
 }
 
 @Composable
-fun ProfileMenuItem(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String) {
+fun ProfileMenuItemRow(icon: ImageVector, title: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -119,12 +119,10 @@ fun ProfileMenuItem(icon: androidx.compose.ui.graphics.vector.ImageVector, title
             Spacer(modifier = Modifier.width(16.dp))
             Text(title, fontSize = 16.sp)
         }
-        Image(
-            painter = painterResource(id = R.drawable.img),
-            contentDescription = "img.png",
-            modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.Crop
+        Icon(
+            imageVector = Icons.Default.KeyboardArrowRight,
+            contentDescription = null,
+            tint = Color.Gray
         )
-
     }
 }
