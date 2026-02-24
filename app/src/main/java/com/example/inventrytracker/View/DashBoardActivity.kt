@@ -9,7 +9,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -36,37 +34,91 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.inventrytracker.Model.InventoryItem
-import com.example.inventrytracker.Repository.InventoryRepositoryImpl
-import com.example.inventrytracker.Repository.userRepoImpl
 import com.example.inventrytracker.ViewModel.InventoryViewModel
 import com.example.inventrytracker.ViewModel.UserViewModel
 
-class DashboardActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val inventoryViewModel = InventoryViewModel(InventoryRepositoryImpl())
-            val userViewModel = UserViewModel(userRepoImpl())
-            DashboardScreen(inventoryViewModel, userViewModel)
-        }
-    }
-}
-
 @Composable
-fun DashboardScreen(inventoryViewModel: InventoryViewModel, userViewModel: UserViewModel) {
+fun DashboardScreen(
+    inventoryViewModel: InventoryViewModel,
+    userViewModel: UserViewModel
+) {
     val items by inventoryViewModel.inventoryItems.collectAsState()
-    var newItemName by remember { mutableStateOf("") }
-    var newItemQuantity by remember { mutableStateOf("") }
     val context = LocalContext.current
     val activity = context as Activity
 
     LaunchedEffect(Unit) {
         inventoryViewModel.startListeningForInventory()
     }
+
+    DashboardBody(
+        items = items,
+        onLogoutClick = {
+            userViewModel.logOut { success, message ->
+                if (success) {
+                    Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
+                    context.startActivity(Intent(context, Login::class.java))
+                    activity.finish()
+                } else {
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        },
+        onAddItemClick = { name, quantity ->
+            val item = InventoryItem(name = name, quantity = quantity)
+            inventoryViewModel.addInventoryItem(item) { success ->
+                if (success) {
+                    Toast.makeText(context, "Item added", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Failed to add item", Toast.LENGTH_SHORT).show()
+                }
+            }
+        },
+        onUpdateItemClick = { item ->
+            inventoryViewModel.updateInventoryItem(item) { success ->
+                if (success) {
+                    Toast.makeText(context, "Item updated", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Failed to update item", Toast.LENGTH_SHORT).show()
+                }
+            }
+        },
+        onDeleteItemClick = { itemId ->
+            inventoryViewModel.deleteInventoryItem(itemId) { success ->
+                if (success) {
+                    Toast.makeText(context, "Item deleted", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Failed to delete item", Toast.LENGTH_SHORT).show()
+                }
+            }
+        },
+        onUploadImageClick = { item, imageBytes ->
+            inventoryViewModel.uploadImageAndUpdateItem(item, imageBytes) { success ->
+                if (success) {
+                    Toast.makeText(context, "Image uploaded", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Image upload failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun DashboardBody(
+    items: List<InventoryItem>,
+    onLogoutClick: () -> Unit,
+    onAddItemClick: (String, Int) -> Unit,
+    onUpdateItemClick: (InventoryItem) -> Unit,
+    onDeleteItemClick: (String) -> Unit,
+    onUploadImageClick: (InventoryItem, ByteArray) -> Unit
+) {
+    var newItemName by remember { mutableStateOf("") }
+    var newItemQuantity by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
@@ -75,17 +127,7 @@ fun DashboardScreen(inventoryViewModel: InventoryViewModel, userViewModel: UserV
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Dashboard", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Button(onClick = {
-                userViewModel.logOut { success, message ->
-                    if (success) {
-                        Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
-                        context.startActivity(Intent(context, Login::class.java))
-                        activity.finish()
-                    } else {
-                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }) {
+            Button(onClick = onLogoutClick) {
                 Text("Logout")
             }
         }
@@ -112,16 +154,9 @@ fun DashboardScreen(inventoryViewModel: InventoryViewModel, userViewModel: UserV
                 val name = newItemName
                 val quantity = newItemQuantity.toIntOrNull() ?: 0
                 if (name.isNotBlank()) {
-                    val item = InventoryItem(name = name, quantity = quantity)
-                    inventoryViewModel.addInventoryItem(item) { success ->
-                        if (success) {
-                            newItemName = ""
-                            newItemQuantity = ""
-                            Toast.makeText(context, "Item added", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, "Failed to add item", Toast.LENGTH_SHORT).show()
-                        }
-                    }
+                    onAddItemClick(name, quantity)
+                    newItemName = ""
+                    newItemQuantity = ""
                 }
             },
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
@@ -131,14 +166,24 @@ fun DashboardScreen(inventoryViewModel: InventoryViewModel, userViewModel: UserV
 
         LazyColumn {
             items(items) { item ->
-                InventoryItemView(item = item, viewModel = inventoryViewModel)
+                InventoryItemView(
+                    item = item,
+                    onUpdateItemClick = onUpdateItemClick,
+                    onDeleteItemClick = onDeleteItemClick,
+                    onUploadImageClick = onUploadImageClick
+                )
             }
         }
     }
 }
 
 @Composable
-fun InventoryItemView(item: InventoryItem, viewModel: InventoryViewModel) {
+fun InventoryItemView(
+    item: InventoryItem,
+    onUpdateItemClick: (InventoryItem) -> Unit,
+    onDeleteItemClick: (String) -> Unit,
+    onUploadImageClick: (InventoryItem, ByteArray) -> Unit
+) {
     var isEditing by remember { mutableStateOf(false) }
     var editedName by remember { mutableStateOf(item.name) }
     var editedQuantity by remember { mutableStateOf(item.quantity.toString()) }
@@ -153,13 +198,7 @@ fun InventoryItemView(item: InventoryItem, viewModel: InventoryViewModel) {
                 inputStream?.close()
 
                 imageBytes?.let {
-                    viewModel.uploadImageAndUpdateItem(item, it) { success ->
-                        if (success) {
-                            Toast.makeText(context, "Image uploaded", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, "Image upload failed", Toast.LENGTH_SHORT).show()
-                        }
-                    }
+                    onUploadImageClick(item, it)
                 }
             }
         }
@@ -193,14 +232,8 @@ fun InventoryItemView(item: InventoryItem, viewModel: InventoryViewModel) {
                             name = editedName,
                             quantity = editedQuantity.toIntOrNull() ?: 0
                         )
-                        viewModel.updateInventoryItem(updatedItem) { success ->
-                            if (success) {
-                                isEditing = false
-                                Toast.makeText(context, "Item updated", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "Failed to update item", Toast.LENGTH_SHORT).show()
-                            }
-                        }
+                        onUpdateItemClick(updatedItem)
+                        isEditing = false
                     }) {
                         Text("Save")
                     }
@@ -218,15 +251,7 @@ fun InventoryItemView(item: InventoryItem, viewModel: InventoryViewModel) {
                         Text("Edit")
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = {
-                        viewModel.deleteInventoryItem(item.id) { success ->
-                            if (success) {
-                                Toast.makeText(context, "Item deleted", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "Failed to delete item", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }) {
+                    Button(onClick = { onDeleteItemClick(item.id) }) {
                         Text("Delete")
                     }
                 }
@@ -237,4 +262,20 @@ fun InventoryItemView(item: InventoryItem, viewModel: InventoryViewModel) {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DashboardPreview() {
+    DashboardBody(
+        items = listOf(
+            InventoryItem(id = "1", name = "Sample Item 1", quantity = 10, imageUrl = ""),
+            InventoryItem(id = "2", name = "Sample Item 2", quantity = 5, imageUrl = "")
+        ),
+        onLogoutClick = {},
+        onAddItemClick = { _, _ -> },
+        onUpdateItemClick = {},
+        onDeleteItemClick = {},
+        onUploadImageClick = { _, _ -> }
+    )
 }

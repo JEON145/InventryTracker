@@ -1,93 +1,141 @@
-// FILE 1: InventryScreen.kt
-// Put this in: com.example.inventrytracker.View
 package com.example.inventrytracker.View
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
 fun InventryScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(16.dp)
     ) {
-        Text(
-            text = "Welcome back,",
-            color = Color.Gray,
-            fontSize = 14.sp
-        )
-        Text(
-            text = "Store Owner",
-            color = Color.Black,
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Inventory Overview",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.height(400.dp),
-            userScrollEnabled = false
-        ) {
-            item { InventoryOverviewCard("24", "Total Products", Icons.Default.Home, Color(0xFF2196F3)) }
-            item { InventoryWarningCard("5", "Low Stock", Icons.Default.Warning) }
-            item { InventoryOverviewCard("12", "Network Stores", Icons.Default.ShoppingCart, Color(0xFF4CAF50)) }
-            item { InventoryWarningCard("3", "Pending Requests", Icons.Default.Email) }
+        // Header
+        item {
+            Text(
+                text = "Welcome back,",
+                color = Color.Gray,
+                fontSize = 14.sp
+            )
+            Text(
+                text = "Store Owner",
+                color = Color.Black,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Inventory Overview",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        // 2x2 Grid
+        item {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                InventoryOverviewCard(
+                    value = "24",
+                    label = "Total Products",
+                    icon = Icons.Default.Home,
+                    color = Color(0xFF2196F3),
+                    modifier = Modifier.weight(1f)
+                )
+                InventoryWarningCard(
+                    value = "5",
+                    label = "Low Stock",
+                    icon = Icons.Default.Warning,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                InventoryOverviewCard(
+                    value = "12",
+                    label = "Network Stores",
+                    icon = Icons.Default.ShoppingCart,
+                    color = Color(0xFF4CAF50),
+                    modifier = Modifier.weight(1f)
+                )
+                InventoryWarningCard(
+                    value = "3",
+                    label = "Pending Requests",
+                    icon = Icons.Default.Email,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
 
-        Text(
-            text = "Low Stock Items",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color.Black
-        )
+        // Low Stock Header
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Low Stock Items",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        // Low Stock Items
+        item { InventoryProductCard("Organic Milk", "8 cartons left", "Min: 15") }
+        item { InventoryProductCard("Tomatoes", "3 kg left", "Min: 10") }
+        item { InventoryProductCard("Cooking Oil", "6 bottles left", "Min: 15") }
 
-        InventoryProductCard("Organic Milk", "8 cartons left", "Min: 15")
-        InventoryProductCard("Tomatoes", "3 kg left", "Min: 10")
-        InventoryProductCard("Cooking Oil", "6 bottles left", "Min: 15")
-
-        Spacer(modifier = Modifier.height(80.dp))
+        item {
+            Spacer(modifier = Modifier.height(80.dp))
+        }
     }
 }
 
 @Composable
-fun InventoryOverviewCard(value: String, label: String, icon: ImageVector, color: Color) {
+fun InventoryOverviewCard(
+    value: String,
+    label: String,
+    icon: ImageVector,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
     Card(
+        modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(6.dp)
@@ -116,8 +164,14 @@ fun InventoryOverviewCard(value: String, label: String, icon: ImageVector, color
 }
 
 @Composable
-fun InventoryWarningCard(value: String, label: String, icon: ImageVector) {
+fun InventoryWarningCard(
+    value: String,
+    label: String,
+    icon: ImageVector,
+    modifier: Modifier = Modifier
+) {
     Card(
+        modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(6.dp)
@@ -173,4 +227,10 @@ fun InventoryProductCard(title: String, stock: String, min: String) {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun InventryScreenPreview() {
+    InventryScreen()
 }

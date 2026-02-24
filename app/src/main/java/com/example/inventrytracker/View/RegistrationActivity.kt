@@ -1,21 +1,32 @@
-package com.example.inventrytracker
+package com.example.inventrytracker.View
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,34 +41,27 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.inventrytracker.Model.User
+import com.example.inventrytracker.R
 import com.example.inventrytracker.Repository.userRepoImpl
-import com.example.inventrytracker.View.DashboardActivity
-import com.example.inventrytracker.View.Login
 import com.example.inventrytracker.ViewModel.UserViewModel
-import kotlin.jvm.java
+import com.example.inventrytracker.ViewModel.ViewModelFactory
 
 /* Inventory Theme Colors */
 val InventoryGreen = Color(0xFF2E7D32)
 val LightGray = Color(0xFFF1F4F3)
 
-class StoreRegistrationActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            StoreRegistrationBody()
-        }
-    }
-}
-
 @Composable
-fun StoreRegistrationBody() {
-
-    val userViewModel = remember { UserViewModel(userRepoImpl()) }
+fun StoreRegistrationScreen(
+    onRegisterSuccess: () -> Unit,
+    onNavigateToLogin: () -> Unit
+) {
+    val userViewModel: UserViewModel = viewModel(factory = ViewModelFactory(userRepo = userRepoImpl()))
+    val context = LocalContext.current
 
     var ownerName by remember { mutableStateOf("") }
     var storeEmail by remember { mutableStateOf("") }
@@ -65,10 +69,60 @@ fun StoreRegistrationBody() {
     var passwordVisible by remember { mutableStateOf(false) }
     var termsAccepted by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
-    val activity = context as Activity
-    val sharedPreference = context.getSharedPreferences("User", Context.MODE_PRIVATE)
+    StoreRegistrationBody(
+        ownerName = ownerName,
+        onOwnerNameChange = { ownerName = it },
+        storeEmail = storeEmail,
+        onStoreEmailChange = { storeEmail = it },
+        password = password,
+        onPasswordChange = { password = it },
+        passwordVisible = passwordVisible,
+        onPasswordVisibilityChange = { passwordVisible = !passwordVisible },
+        termsAccepted = termsAccepted,
+        onTermsAcceptedChange = { termsAccepted = it },
+        onRegisterClick = {
+            if (!termsAccepted) {
+                Toast.makeText(context, "Accept terms first", Toast.LENGTH_SHORT).show()
+                return@StoreRegistrationBody
+            }
 
+            userViewModel.RegisterUser(ownerName, storeEmail, password) { success, msg, userId ->
+                if (success) {
+                    val user = User(
+                        userId = userId,
+                        fullName = ownerName,
+                        email = storeEmail
+                    )
+                    userViewModel.AddUserToDataBase(userId, user) { ok, message ->
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                        if (ok) {
+                            onRegisterSuccess()
+                        }
+                    }
+                } else {
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                }
+            }
+        },
+        onLoginClick = onNavigateToLogin
+    )
+}
+
+@Composable
+fun StoreRegistrationBody(
+    ownerName: String,
+    onOwnerNameChange: (String) -> Unit,
+    storeEmail: String,
+    onStoreEmailChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    passwordVisible: Boolean,
+    onPasswordVisibilityChange: () -> Unit,
+    termsAccepted: Boolean,
+    onTermsAcceptedChange: (Boolean) -> Unit,
+    onRegisterClick: () -> Unit,
+    onLoginClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -115,7 +169,7 @@ fun StoreRegistrationBody() {
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = ownerName,
-                onValueChange = { ownerName = it },
+                onValueChange = onOwnerNameChange,
                 placeholder = { Text("Enter owner name") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -134,7 +188,7 @@ fun StoreRegistrationBody() {
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = storeEmail,
-                onValueChange = { storeEmail = it },
+                onValueChange = onStoreEmailChange,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 placeholder = { Text("store@email.com") },
                 modifier = Modifier.fillMaxWidth(),
@@ -154,13 +208,13 @@ fun StoreRegistrationBody() {
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = onPasswordChange,
                 visualTransformation = if (passwordVisible)
                     VisualTransformation.None
                 else
                     PasswordVisualTransformation(),
                 trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    IconButton(onClick = onPasswordVisibilityChange) {
                         Icon(
                             painter = painterResource(
                                 if (passwordVisible)
@@ -187,7 +241,7 @@ fun StoreRegistrationBody() {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
                     checked = termsAccepted,
-                    onCheckedChange = { termsAccepted = it },
+                    onCheckedChange = onTermsAcceptedChange,
                     colors = CheckboxDefaults.colors(checkedColor = InventoryGreen)
                 )
                 Text("I agree to Terms & Store Policy", fontSize = 13.sp)
@@ -196,41 +250,7 @@ fun StoreRegistrationBody() {
             Spacer(modifier = Modifier.height(14.dp))
 
             Button(
-                onClick = {
-                    if (!termsAccepted) {
-                        Toast.makeText(context, "Accept terms first", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-
-                    val localEmail = sharedPreference.getString("email", "")
-                    if (localEmail == storeEmail) {
-                        Toast.makeText(context, "Email already exists", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-
-                    userViewModel.RegisterUser(ownerName, storeEmail, password) { success, msg, userId ->
-                        if (success) {
-                            val user = User(
-                                userId = userId,
-                                fullName = ownerName,
-                                email = storeEmail
-                            )
-                            userViewModel.AddUserToDataBase(userId, user) { ok, message ->
-                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                                if (ok) {
-                                    // Navigate to Dashboard
-                                    val intent = Intent(context, DashboardActivity::class.java)
-                                    intent.putExtra("email", storeEmail)
-                                    context.startActivity(intent)
-                                    activity.finish()
-                                }
-                            }
-                        } else {
-                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-
-                },
+                onClick = onRegisterClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -257,10 +277,7 @@ fun StoreRegistrationBody() {
                 fontSize = 13.sp,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .clickable {
-                        context.startActivity(Intent(context, Login::class.java))
-                        activity.finish()
-                    }
+                    .clickable(onClick = onLoginClick)
             )
         }
     }
@@ -269,5 +286,18 @@ fun StoreRegistrationBody() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewStoreRegistration() {
-    StoreRegistrationBody()
+    StoreRegistrationBody(
+        ownerName = "",
+        onOwnerNameChange = {},
+        storeEmail = "",
+        onStoreEmailChange = {},
+        password = "",
+        onPasswordChange = {},
+        passwordVisible = false,
+        onPasswordVisibilityChange = {},
+        termsAccepted = false,
+        onTermsAcceptedChange = {},
+        onRegisterClick = {},
+        onLoginClick = {}
+    )
 }
