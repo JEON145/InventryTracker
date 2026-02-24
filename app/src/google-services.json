@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "85244455972",
+    "firebase_url": "https://inventrytracker-d12cd-default-rtdb.firebaseio.com",
     "project_id": "inventrytracker-d12cd",
     "storage_bucket": "inventrytracker-d12cd.firebasestorage.app"
   },

@@ -10,9 +10,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,11 +33,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import com.example.inventrytracker.Repository.userRepoImpl
 import com.example.inventrytracker.StoreRegistrationActivity
 import com.example.inventrytracker.ViewModel.UserViewModel
-import kotlin.jvm.java
 
 class Login : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +55,7 @@ fun LoginBody() {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val activity = context as Activity
@@ -113,8 +112,8 @@ fun LoginBody() {
                     onValueChange = { password = it },
                     placeholder = { Text("Enter password") },
                     visualTransformation =
-                        if (passwordVisible) VisualTransformation.None
-                        else PasswordVisualTransformation(),
+                    if (passwordVisible) VisualTransformation.None
+                    else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
@@ -145,22 +144,26 @@ fun LoginBody() {
                             ).show()
                             return@Button
                         }
+                        isLoading = true
                         viewModel.loginUser(
                             email = email,
                             password = password,
                             onSuccess = {
+                                isLoading = false
                                 Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
                                 val intent = Intent(context, DashboardActivity::class.java)
                                 context.startActivity(intent)
                                 activity.finish()
                             },
                             onError = { error ->
+                                isLoading = false
                                 Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
                             }
                         )
 
 
                     },
+                    enabled = !isLoading,
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 10.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -169,36 +172,51 @@ fun LoginBody() {
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Green)
                 ) {
-                    Text(
-                        text = "Log In",
-                        fontSize = 17.sp,
-                        color = Color.White
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(
+                            text = "Log In",
+                            fontSize = 17.sp,
+                            color = Color.White
+                        )
+                    }
                 }
 
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                Text(
-                    buildAnnotatedString {
-                        append("Don't have an account? ")
-                        withStyle(
-                            SpanStyle(
-                                color = Green,
-                                fontWeight = FontWeight.Bold
-                            )
-                        ) {
-                            append("Sign Up")
-                        }
+                val annotatedString = buildAnnotatedString {
+                    append("Don't have an account? ")
+                    pushStringAnnotation(tag = "SignUp", annotation = "SignUp")
+                    withStyle(
+                        style = SpanStyle(
+                            color = Green,
+                            fontWeight = FontWeight.Bold
+                        )
+                    ) {
+                        append("Sign Up")
+                    }
+                    pop()
+                }
+
+                ClickableText(
+                    text = annotatedString,
+                    onClick = {
+                        offset ->
+                        annotatedString.getStringAnnotations(tag = "SignUp", start = offset, end = offset)
+                            .firstOrNull()?.let {
+                                context.startActivity(
+                                    Intent(context, StoreRegistrationActivity::class.java)
+                                )
+                                activity.finish()
+                            }
                     },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .clickable {
-                            context.startActivity(
-                                Intent(context, StoreRegistrationActivity::class.java)
-                            )
-                            activity.finish()
-                        }
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
         }

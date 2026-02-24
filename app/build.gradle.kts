@@ -7,9 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.inventrytracker"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.inventrytracker"
@@ -58,8 +56,9 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.firebase.database)
-    implementation("com.google.firebase:firebase-storage-ktx:21.0.0")
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation(libs.firebase.storage)
+    implementation(libs.coil.compose)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,5 +66,4 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation("androidx.compose.runtime:runtime-livedata:1.10.0")
 }

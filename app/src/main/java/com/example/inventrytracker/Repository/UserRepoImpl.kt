@@ -1,6 +1,5 @@
 package com.example.inventrytracker.Repository
 
-
 import com.example.inventrytracker.Model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -10,23 +9,26 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
+class userRepoImpl : UserRepo {
 
-
-class userRepoImpl: UserRepo
-{
-    val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    val database: FirebaseDatabase = FirebaseDatabase.getInstance()
-    var ref: DatabaseReference = database.getReference("users")
-
+    private val auth: FirebaseAuth by lazy {
+        FirebaseAuth.getInstance()
+    }
+    private val database: FirebaseDatabase by lazy {
+        FirebaseDatabase.getInstance()
+    }
+    private val ref: DatabaseReference by lazy {
+        database.getReference("users")
+    }
 
     override fun login(
         email: String,
         password: String,
         callback: (Boolean, String) -> Unit
     ) {
-        auth.signInWithEmailAndPassword(email,password)
+        auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener {
-                if (it.isSuccessful){
+                if (it.isSuccessful) {
                     callback(true, "Login Successful")
                 } else {
                     callback(false, "${it.exception?.message}")
@@ -45,15 +47,12 @@ class userRepoImpl: UserRepo
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid ?: ""
-                    // Call the callback with THREE arguments: success, message, and the new userId
                     callback(true, "Registration successful", userId)
                 } else {
-                    // Call the callback with THREE arguments, with an empty userId on failure
                     callback(false, task.exception?.message ?: "Registration failed", "")
                 }
             }
     }
-
 
     override fun addUserToDatabase(
         userId: String,
@@ -121,6 +120,7 @@ class userRepoImpl: UserRepo
                 }
             })
     }
+
     override fun getAllUser(callback: (Boolean, String, List<User>?) -> Unit) {
         ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

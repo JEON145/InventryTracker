@@ -10,8 +10,12 @@ import java.util.UUID
 
 class InventoryRepositoryImpl : InventoryRepository {
 
-    private val database = FirebaseDatabase.getInstance().getReference("inventory")
-    private val storage = FirebaseStorage.getInstance().reference
+    private val database by lazy {
+        FirebaseDatabase.getInstance().getReference("inventory")
+    }
+    private val storage by lazy {
+        FirebaseStorage.getInstance().reference
+    }
 
     override fun getInventoryItems(userId: String, callback: (List<InventoryItem>) -> Unit) {
         database.orderByChild("userId").equalTo(userId).addValueEventListener(object : ValueEventListener {
