@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -44,12 +46,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.inventrytracker.Model.User
 import com.example.inventrytracker.R
-import com.example.inventrytracker.Repository.userRepoImpl
 import com.example.inventrytracker.ViewModel.UserViewModel
-import com.example.inventrytracker.ViewModel.ViewModelFactory
 
 /* Inventory Theme Colors */
 val InventoryGreen = Color(0xFF2E7D32)
@@ -57,15 +56,17 @@ val LightGray = Color(0xFFF1F4F3)
 
 @Composable
 fun StoreRegistrationScreen(
+    userViewModel: UserViewModel,
     onRegisterSuccess: () -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
-    val userViewModel: UserViewModel = viewModel(factory = ViewModelFactory(userRepo = userRepoImpl()))
     val context = LocalContext.current
 
     var ownerName by remember { mutableStateOf("") }
     var storeEmail by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var securityQuestion by remember { mutableStateOf("") }
+    var securityAnswer by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var termsAccepted by remember { mutableStateOf(false) }
 
@@ -76,6 +77,10 @@ fun StoreRegistrationScreen(
         onStoreEmailChange = { storeEmail = it },
         password = password,
         onPasswordChange = { password = it },
+        securityQuestion = securityQuestion,
+        onSecurityQuestionChange = { securityQuestion = it },
+        securityAnswer = securityAnswer,
+        onSecurityAnswerChange = { securityAnswer = it },
         passwordVisible = passwordVisible,
         onPasswordVisibilityChange = { passwordVisible = !passwordVisible },
         termsAccepted = termsAccepted,
@@ -85,13 +90,19 @@ fun StoreRegistrationScreen(
                 Toast.makeText(context, "Accept terms first", Toast.LENGTH_SHORT).show()
                 return@StoreRegistrationBody
             }
+            if (ownerName.isBlank() || storeEmail.isBlank() || password.isBlank() || securityQuestion.isBlank() || securityAnswer.isBlank()) {
+                Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                return@StoreRegistrationBody
+            }
 
             userViewModel.RegisterUser(ownerName, storeEmail, password) { success, msg, userId ->
                 if (success) {
                     val user = User(
                         userId = userId,
                         fullName = ownerName,
-                        email = storeEmail
+                        email = storeEmail,
+                        securityQuestion = securityQuestion,
+                        securityAnswer = securityAnswer
                     )
                     userViewModel.AddUserToDataBase(userId, user) { ok, message ->
                         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -116,6 +127,10 @@ fun StoreRegistrationBody(
     onStoreEmailChange: (String) -> Unit,
     password: String,
     onPasswordChange: (String) -> Unit,
+    securityQuestion: String,
+    onSecurityQuestionChange: (String) -> Unit,
+    securityAnswer: String,
+    onSecurityAnswerChange: (String) -> Unit,
     passwordVisible: Boolean,
     onPasswordVisibilityChange: () -> Unit,
     termsAccepted: Boolean,
@@ -127,6 +142,7 @@ fun StoreRegistrationBody(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .verticalScroll(rememberScrollState())
     ) {
 
         Image(
@@ -238,6 +254,45 @@ fun StoreRegistrationBody(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Security Question
+            Text("Security Question", fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.height(6.dp))
+            OutlinedTextField(
+                value = securityQuestion,
+                onValueChange = onSecurityQuestionChange,
+                placeholder = { Text("e.g., What is your mother\'s maiden name?") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = LightGray,
+                    unfocusedContainerColor = LightGray,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                )
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Security Answer
+            Text("Security Answer", fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.height(6.dp))
+            OutlinedTextField(
+                value = securityAnswer,
+                onValueChange = onSecurityAnswerChange,
+                placeholder = { Text("Enter your answer") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = LightGray,
+                    unfocusedContainerColor = LightGray,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                )
+            )
+
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
                     checked = termsAccepted,
@@ -279,6 +334,8 @@ fun StoreRegistrationBody(
                     .align(Alignment.CenterHorizontally)
                     .clickable(onClick = onLoginClick)
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
@@ -293,6 +350,10 @@ fun PreviewStoreRegistration() {
         onStoreEmailChange = {},
         password = "",
         onPasswordChange = {},
+        securityQuestion = "",
+        onSecurityQuestionChange = {},
+        securityAnswer = "",
+        onSecurityAnswerChange = {},
         passwordVisible = false,
         onPasswordVisibilityChange = {},
         termsAccepted = false,

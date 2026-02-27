@@ -3,20 +3,17 @@ package com.example.inventrytracker.Model
 data class User(
     val userId:String="",
     val email: String="",
-    val password:String="",
-    val fullName: String
-
-
+    val fullName: String = "",
+    val securityQuestion: String = "",
+    val securityAnswer: String = ""
 ){
     fun toMap(): Map<String, Any?> {
         return mapOf(
             "userId" to userId,
             "email" to email,
-            "password" to password,
             "fullName" to fullName,
-
-            )
+            "securityQuestion" to securityQuestion,
+            "securityAnswer" to securityAnswer
+        )
     }
-
 }
-

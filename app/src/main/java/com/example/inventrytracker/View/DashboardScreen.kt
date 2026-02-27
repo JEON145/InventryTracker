@@ -1,12 +1,7 @@
 package com.example.inventrytracker.View
 
-import android.app.Activity
-import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -45,11 +40,11 @@ import com.example.inventrytracker.ViewModel.UserViewModel
 @Composable
 fun DashboardScreen(
     inventoryViewModel: InventoryViewModel,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    onLogout: () -> Unit
 ) {
     val items by inventoryViewModel.inventoryItems.collectAsState()
     val context = LocalContext.current
-    val activity = context as Activity
 
     LaunchedEffect(Unit) {
         inventoryViewModel.startListeningForInventory()
@@ -61,8 +56,7 @@ fun DashboardScreen(
             userViewModel.logOut { success, message ->
                 if (success) {
                     Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
-                    context.startActivity(Intent(context, Login::class.java))
-                    activity.finish()
+                    onLogout()
                 } else {
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }

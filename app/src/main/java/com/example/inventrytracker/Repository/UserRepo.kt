@@ -11,8 +11,8 @@ interface UserRepo  {
         password: String,
         callback: (Boolean, String) -> Unit
     )
-    // In UserRepo.kt
-    fun register(fullName: String, email: String, password: String, callback: (Boolean, String, String) -> Unit) // Add String for userId
+
+    fun register(fullName: String, email: String, password: String, callback: (Boolean, String, String) -> Unit)
 
     fun addUserToDatabase(
         userId: String,
@@ -29,9 +29,7 @@ interface UserRepo  {
         callback: (Boolean, String) -> Unit
     )
 
-    fun getUserById(
-        userId: String,
-        callback: (Boolean,String, User?) -> Unit)
+    fun getUserById(email: String, callback: (Boolean, String, User?) -> Unit)
 
     fun getAllUser(
         callback: (Boolean, String,List<User>?) -> Unit
@@ -41,4 +39,6 @@ interface UserRepo  {
     fun logOut(callback: (Boolean, String) -> Unit)
 
     fun forgetPassword(email:String,callback: (Boolean, String) -> Unit)
+
+    fun updatePassword(email: String, newPassword: String, callback: (Boolean, String) -> Unit)
 }

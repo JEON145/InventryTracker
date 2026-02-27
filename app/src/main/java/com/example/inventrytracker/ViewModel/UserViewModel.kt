@@ -47,7 +47,15 @@ class UserViewModel(
         repository.forgetPassword(email, callback)
     }
 
+    fun getUserById(email: String, callback: (Boolean, String, User?) -> Unit) {
+        repository.getUserById(email, callback)
+    }
+
     fun logOut(callback: (Boolean, String) -> Unit) {
         repository.logOut(callback)
+    }
+
+    fun updatePassword(email: String, newPassword: String, callback: (Boolean, String) -> Unit) {
+        repository.updatePassword(email, newPassword, callback)
     }
 }

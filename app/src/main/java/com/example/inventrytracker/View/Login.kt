@@ -1,26 +1,38 @@
 package com.example.inventrytracker.View
 
-import android.app.Activity
-import com.example.inventrytracker.R
-import android.content.Intent
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -31,41 +43,78 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.inventrytracker.Repository.userRepoImpl
-import com.example.inventrytracker.StoreRegistrationActivity
+import com.example.inventrytracker.R
 import com.example.inventrytracker.ViewModel.UserViewModel
 
-class Login : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            LoginBody()
-        }
-    }
-}
-
 @Composable
-fun LoginBody() {
-
-    val viewModel = remember { UserViewModel(userRepoImpl()) }
+fun LoginScreen(
+    userViewModel: UserViewModel,
+    onLoginSuccess: () -> Unit,
+    onNavigateToRegister: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit
+) {
+    val context = LocalContext.current
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
-    val activity = context as Activity
+    LoginBody(
+        email = email,
+        onEmailChange = { email = it },
+        password = password,
+        onPasswordChange = { password = it },
+        passwordVisible = passwordVisible,
+        onPasswordVisibilityChange = { passwordVisible = !passwordVisible },
+        isLoading = isLoading,
+        onLoginClick = {
+            if (email.isBlank() || password.isBlank()) {
+                Toast.makeText(context, "Please enter email and password", Toast.LENGTH_SHORT).show()
+                return@LoginBody
+            }
+            isLoading = true
+            userViewModel.loginUser(
+                email = email,
+                password = password,
+                onSuccess = {
+                    isLoading = false
+                    Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
+                    onLoginSuccess()
+                },
+                onError = { error ->
+                    isLoading = false
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                }
+            )
+        },
+        onSignUpClick = onNavigateToRegister,
+        onForgotPasswordClick = onNavigateToForgotPassword
+    )
+}
 
+@Composable
+fun LoginBody(
+    email: String,
+    onEmailChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    passwordVisible: Boolean,
+    onPasswordVisibilityChange: () -> Unit,
+    isLoading: Boolean,
+    onLoginClick: () -> Unit,
+    onSignUpClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit
+) {
     Scaffold { padding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
+                .padding(padding)
         ) {
 
             Image(
@@ -90,7 +139,7 @@ fun LoginBody() {
                     text = "Login",
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Green,
+                    color = Color.Green,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
@@ -98,7 +147,7 @@ fun LoginBody() {
 
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = onEmailChange,
                     placeholder = { Text("Enter email") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     modifier = Modifier.fillMaxWidth(),
@@ -109,13 +158,13 @@ fun LoginBody() {
 
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = onPasswordChange,
                     placeholder = { Text("Enter password") },
                     visualTransformation =
                     if (passwordVisible) VisualTransformation.None
                     else PasswordVisualTransformation(),
                     trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        IconButton(onClick = onPasswordVisibilityChange) {
                             Icon(
                                 painter = painterResource(
                                     id = if (passwordVisible) {
@@ -131,38 +180,21 @@ fun LoginBody() {
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        text = "Forgot Password?",
+                        modifier = Modifier.clickable { onForgotPasswordClick() },
+                        color = Color.Green
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Button(
-                    onClick = {
-                        if (email.isBlank() || password.isBlank()) {
-                            Toast.makeText(
-                                context,
-                                "Please enter email and password",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@Button
-                        }
-                        isLoading = true
-                        viewModel.loginUser(
-                            email = email,
-                            password = password,
-                            onSuccess = {
-                                isLoading = false
-                                Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
-                                val intent = Intent(context, DashboardActivity::class.java)
-                                context.startActivity(intent)
-                                activity.finish()
-                            },
-                            onError = { error ->
-                                isLoading = false
-                                Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-                            }
-                        )
-
-
-                    },
+                    onClick = onLoginClick,
                     enabled = !isLoading,
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 10.dp),
                     modifier = Modifier
@@ -170,7 +202,7 @@ fun LoginBody() {
                         .height(60.dp)
                         .padding(horizontal = 15.dp),
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Green)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(
@@ -195,7 +227,7 @@ fun LoginBody() {
                     pushStringAnnotation(tag = "SignUp", annotation = "SignUp")
                     withStyle(
                         style = SpanStyle(
-                            color = Green,
+                            color = Color.Green,
                             fontWeight = FontWeight.Bold
                         )
                     ) {
@@ -209,16 +241,28 @@ fun LoginBody() {
                     onClick = {
                         offset ->
                         annotatedString.getStringAnnotations(tag = "SignUp", start = offset, end = offset)
-                            .firstOrNull()?.let {
-                                context.startActivity(
-                                    Intent(context, StoreRegistrationActivity::class.java)
-                                )
-                                activity.finish()
-                            }
+                            .firstOrNull()?.let { onSignUpClick() }
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginPreview() {
+    LoginBody(
+        email = "",
+        onEmailChange = {},
+        password = "",
+        onPasswordChange = {},
+        passwordVisible = false,
+        onPasswordVisibilityChange = {},
+        isLoading = false,
+        onLoginClick = {},
+        onSignUpClick = {},
+        onForgotPasswordClick = {}
+    )
 }

@@ -14,18 +14,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.inventrytracker.Repository.InventoryRepositoryImpl
-import com.example.inventrytracker.Repository.userRepoImpl
 import com.example.inventrytracker.ViewModel.InventoryViewModel
 import com.example.inventrytracker.ViewModel.UserViewModel
-import com.example.inventrytracker.ViewModel.ViewModelFactory
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val title: String) {
     object Dashboard : BottomNavItem("dashboard", Icons.Default.Home, "Dashboard")
@@ -34,10 +30,12 @@ sealed class BottomNavItem(val route: String, val icon: ImageVector, val title: 
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    userViewModel: UserViewModel,
+    inventoryViewModel: InventoryViewModel,
+    onLogout: () -> Unit
+) {
     val navController = rememberNavController()
-    val userViewModel: UserViewModel = viewModel(factory = ViewModelFactory(userRepo = userRepoImpl()))
-    val inventoryViewModel: InventoryViewModel = viewModel(factory = ViewModelFactory(inventoryRepo = InventoryRepositoryImpl()))
 
     Scaffold(
         bottomBar = {
@@ -73,8 +71,8 @@ fun MainScreen() {
             startDestination = BottomNavItem.Dashboard.route,
             Modifier.padding(innerPadding)
         ) {
-            composable(BottomNavItem.Dashboard.route) { DashboardScreen(inventoryViewModel, userViewModel) }
-            composable(BottomNavItem.Inventory.route) { InventryScreen() }
+            composable(BottomNavItem.Dashboard.route) { DashboardScreen(inventoryViewModel, userViewModel, onLogout) }
+            composable(BottomNavItem.Inventory.route) { InventryScreen(inventoryViewModel) }
             composable(BottomNavItem.Profile.route) { ProfileScreen() }
         }
     }

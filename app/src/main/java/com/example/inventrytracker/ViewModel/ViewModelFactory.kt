@@ -1,22 +1,20 @@
 package com.example.inventrytracker.ViewModel
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.inventrytracker.Repository.InventoryRepository
-import com.example.inventrytracker.Repository.UserRepo
+import com.example.inventrytracker.InventryTrackerApp
 
-class ViewModelFactory(
-    private val userRepo: UserRepo? = null,
-    private val inventoryRepo: InventoryRepository? = null
-) : ViewModelProvider.Factory {
+class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(UserViewModel::class.java) && userRepo != null) {
+        val app = application as InventryTrackerApp
+        if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return UserViewModel(userRepo) as T
+            return UserViewModel(app.userRepo) as T
         }
-        if (modelClass.isAssignableFrom(InventoryViewModel::class.java) && inventoryRepo != null) {
+        if (modelClass.isAssignableFrom(InventoryViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return InventoryViewModel(inventoryRepo) as T
+            return InventoryViewModel(app.inventoryRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

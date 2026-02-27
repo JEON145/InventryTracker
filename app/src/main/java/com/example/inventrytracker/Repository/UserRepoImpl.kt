@@ -101,18 +101,20 @@ class userRepoImpl : UserRepo {
     }
 
     override fun getUserById(
-        userId: String,
+        email: String,
         callback: (Boolean, String, User?) -> Unit
     ) {
-        ref.child(userId)
-            .addValueEventListener(object : ValueEventListener {
+        ref.orderByChild("email").equalTo(email)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
-                        val users = snapshot.getValue(User::class.java)
-                        if (users != null) {
-                            callback(true, "Profile fetched", users)
+                        for (userSnapshot in snapshot.children) {
+                            val user = userSnapshot.getValue(User::class.java)
+                            callback(true, "User found", user)
+                            return
                         }
                     }
+                    callback(false, "User not found", null)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -166,5 +168,15 @@ class userRepoImpl : UserRepo {
                     callback(false, "${it.exception?.message}")
                 }
             }
+    }
+
+    override fun updatePassword(email: String, newPassword: String, callback: (Boolean, String) -> Unit) {
+        auth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                callback(true, "Password reset email sent.")
+            } else {
+                callback(false, task.exception?.message ?: "Failed to send reset email.")
+            }
+        }
     }
 }
