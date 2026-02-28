@@ -5,6 +5,7 @@ import com.example.inventrytracker.Repository.InventoryRepository
 import com.example.inventrytracker.Repository.InventoryRepositoryImpl
 import com.example.inventrytracker.Repository.UserRepo
 import com.example.inventrytracker.Repository.userRepoImpl
+import com.example.inventrytracker.Utils.CloudinaryConfig
 import com.google.firebase.FirebaseApp
 
 class InventryTrackerApp : Application() {
@@ -21,5 +22,6 @@ class InventryTrackerApp : Application() {
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
+        CloudinaryConfig.initialize(this)
     }
 }

@@ -5,16 +5,15 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.storage.FirebaseStorage
+import com.cloudinary.android.MediaManager
+import com.cloudinary.android.callback.ErrorInfo
+import com.cloudinary.android.callback.UploadCallback
 import java.util.UUID
 
 class InventoryRepositoryImpl : InventoryRepository {
 
     private val database by lazy {
         FirebaseDatabase.getInstance().getReference("inventory")
-    }
-    private val storage by lazy {
-        FirebaseStorage.getInstance().reference
     }
 
     override fun getInventoryItems(userId: String, callback: (List<InventoryItem>) -> Unit) {
@@ -55,21 +54,29 @@ class InventoryRepositoryImpl : InventoryRepository {
     }
 
     override fun uploadImage(image: ByteArray, callback: (Boolean, String?) -> Unit) {
-        val imageId = UUID.randomUUID().toString()
-        val imageRef = storage.child("images/$imageId")
-
-        imageRef.putBytes(image).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                imageRef.downloadUrl.addOnCompleteListener { urlTask ->
-                    if (urlTask.isSuccessful) {
-                        callback(true, urlTask.result.toString())
-                    } else {
-                        callback(false, null)
-                    }
+        val requestId = MediaManager.get().upload(image)
+            .callback(object : UploadCallback {
+                override fun onStart(requestId: String) {
+                    // Pre-upload handling
                 }
-            } else {
-                callback(false, null)
-            }
-        }
+
+                override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {
+                    // Progress tracking
+                }
+
+                override fun onSuccess(requestId: String, resultData: Map<*, *>) {
+                    val imageUrl = resultData["secure_url"] as? String
+                    callback(true, imageUrl)
+                }
+
+                override fun onError(requestId: String, error: ErrorInfo) {
+                    callback(false, null)
+                }
+
+                override fun onReschedule(requestId: String, error: ErrorInfo) {
+                    // Rescheduling if network fails
+                }
+            })
+            .dispatch()
     }
 }
