@@ -1,6 +1,7 @@
 package com.example.inventrytracker.Repository
 
 import com.example.inventrytracker.Model.InventoryItem
+import com.example.inventrytracker.Utils.CloudinaryConfig
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -55,6 +56,7 @@ class InventoryRepositoryImpl : InventoryRepository {
 
     override fun uploadImage(image: ByteArray, callback: (Boolean, String?) -> Unit) {
         val requestId = MediaManager.get().upload(image)
+            .unsigned(CloudinaryConfig.UPLOAD_PRESET)
             .callback(object : UploadCallback {
                 override fun onStart(requestId: String) {
                     // Pre-upload handling
