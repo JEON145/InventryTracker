@@ -28,15 +28,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import java.io.ByteArrayOutputStream
-import com.example.inventrytracker.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.inventrytracker.R
+import com.example.inventrytracker.View.Components.AssetImagePicker
 import com.example.inventrytracker.Model.InventoryItem
 import com.example.inventrytracker.ViewModel.InventoryViewModel
 import com.example.inventrytracker.ViewModel.UserViewModel
@@ -173,27 +171,17 @@ fun DashboardBody(
             Text("Add Item")
         }
 
-        Text("Quick Start (Add Item with Sample Photo):", fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            val sampleItems: List<Pair<String, Int>> = listOf(
-                Pair("Sample 1", com.example.inventrytracker.R.drawable.img),
-                Pair("Sample 2", com.example.inventrytracker.R.drawable.img_1)
-            )
-            sampleItems.forEach { (name, resId) ->
-                Button(onClick = {
-                    val bitmap = BitmapFactory.decodeResource(context.resources, resId)
-                    val out = ByteArrayOutputStream()
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                    val imageBytes = out.toByteArray()
-                    
-                    onAddItemWithImageClick(name, 1, imageBytes)
-                }) {
-                    Text(name)
-                }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Asset image picker from assets/inventory tracker folder
+        AssetImagePicker(context = context) { imageBytes ->
+            // Use current name/quantity fields for adding the item with the selected image
+            if (newItemName.isNotBlank()) {
+                onAddItemWithImageClick(newItemName, newItemQuantity.toIntOrNull() ?: 0, imageBytes)
+                newItemName = ""
+                newItemQuantity = ""
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(items) { item ->
@@ -218,22 +206,8 @@ fun InventoryItemView(
     var isEditing by remember { mutableStateOf(false) }
     var editedName by remember { mutableStateOf(item.name) }
     var editedQuantity by remember { mutableStateOf(item.quantity.toString()) }
+    var isPickingImage by remember { mutableStateOf(false) }
     val context = LocalContext.current
-
-    val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri: Uri? ->
-            uri?.let {
-                val inputStream = context.contentResolver.openInputStream(uri)
-                val imageBytes = inputStream?.readBytes()
-                inputStream?.close()
-
-                imageBytes?.let {
-                    onUploadImageClick(item, it)
-                }
-            }
-        }
-    )
 
     Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -296,8 +270,14 @@ fun InventoryItemView(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
-                    Button(onClick = { imagePicker.launch("image/*") }) {
+                    Button(onClick = { isPickingImage = !isPickingImage }) {
                         Text(if (item.imageUrl.isNotBlank()) "Change Image" else "Add Image")
+                    }
+                }
+                if (isPickingImage) {
+                    AssetImagePicker(context = context) { imageBytes ->
+                        onUploadImageClick(item, imageBytes)
+                        isPickingImage = false
                     }
                 }
             }

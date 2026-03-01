@@ -40,6 +40,11 @@ import com.example.inventrytracker.Model.InventoryItem
 import com.example.inventrytracker.R
 import com.example.inventrytracker.ViewModel.InventoryViewModel
 import com.example.inventrytracker.ViewModel.ViewModelFactory
+import com.example.inventrytracker.View.Components.AssetImagePicker
+import androidx.compose.material3.Button
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 @Composable
 fun InventryScreen(inventoryViewModel: InventoryViewModel) {
@@ -65,14 +70,21 @@ fun InventryScreen(inventoryViewModel: InventoryViewModel) {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(items) { item ->
-                InventoryGridItem(item)
+                InventoryGridItem(item) { imageBytes ->
+                    inventoryViewModel.uploadImageAndUpdateItem(item, imageBytes) { success, error ->
+                        // Optional: Show toast
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun InventoryGridItem(item: InventoryItem) {
+fun InventoryGridItem(item: InventoryItem, onImageSelected: (ByteArray) -> Unit) {
+    val context = LocalContext.current
+    var isPickingImage by remember { mutableStateOf(false) }
+
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -102,6 +114,21 @@ fun InventoryGridItem(item: InventoryItem) {
                     color = Color.Gray,
                     fontSize = 14.sp
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = { isPickingImage = !isPickingImage },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(text = if (item.imageUrl.isEmpty()) "Add Image" else "Change", fontSize = 12.sp)
+                }
+
+                if (isPickingImage) {
+                    AssetImagePicker(context = context) { imageBytes ->
+                        onImageSelected(imageBytes)
+                        isPickingImage = false
+                    }
+                }
             }
         }
     }
