@@ -34,7 +34,7 @@ class InventoryViewModel(private val repository: InventoryRepository) : ViewMode
         repository.deleteInventoryItem(itemId, callback)
     }
 
-    fun addItemWithImage(name: String, quantity: Int, image: ByteArray, callback: (Boolean) -> Unit) {
+    fun addItemWithImage(name: String, quantity: Int, image: ByteArray, callback: (Boolean, String?) -> Unit) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val newItem = InventoryItem(name = name, quantity = quantity, userId = userId)
         
@@ -42,28 +42,32 @@ class InventoryViewModel(private val repository: InventoryRepository) : ViewMode
         repository.addInventoryItem(newItem) { success ->
             if (success) {
                 // 2. Upload image
-                repository.uploadImage(image) { uploadSuccess, imageUrl ->
+                repository.uploadImage(image) { uploadSuccess, imageUrl, errorMessage ->
                     if (uploadSuccess && imageUrl != null) {
                         // 3. Update item with image URL
                         val updatedItem = newItem.copy(imageUrl = imageUrl)
-                        repository.updateInventoryItem(updatedItem, callback)
+                        repository.updateInventoryItem(updatedItem) { ok ->
+                            callback(ok, if (ok) null else "Failed to update item with URL")
+                        }
                     } else {
-                        callback(false)
+                        callback(false, errorMessage ?: "Upload failed")
                     }
                 }
             } else {
-                callback(false)
+                callback(false, "Failed to create item")
             }
         }
     }
 
-    fun uploadImageAndUpdateItem(item: InventoryItem, image: ByteArray, callback: (Boolean) -> Unit) {
-        repository.uploadImage(image) { success, imageUrl ->
+    fun uploadImageAndUpdateItem(item: InventoryItem, image: ByteArray, callback: (Boolean, String?) -> Unit) {
+        repository.uploadImage(image) { success, imageUrl, errorMessage ->
             if (success && imageUrl != null) {
                 val updatedItem = item.copy(imageUrl = imageUrl)
-                updateInventoryItem(updatedItem, callback)
+                updateInventoryItem(updatedItem) { ok ->
+                    callback(ok, if (ok) null else "Failed to update item with URL")
+                }
             } else {
-                callback(false)
+                callback(false, errorMessage ?: "Upload failed")
             }
         }
     }

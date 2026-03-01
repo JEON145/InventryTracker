@@ -54,7 +54,7 @@ class InventoryRepositoryImpl : InventoryRepository {
         }
     }
 
-    override fun uploadImage(image: ByteArray, callback: (Boolean, String?) -> Unit) {
+    override fun uploadImage(image: ByteArray, callback: (Boolean, String?, String?) -> Unit) {
         val requestId = MediaManager.get().upload(image)
             .unsigned(CloudinaryConfig.UPLOAD_PRESET)
             .callback(object : UploadCallback {
@@ -69,12 +69,13 @@ class InventoryRepositoryImpl : InventoryRepository {
                 override fun onSuccess(requestId: String, resultData: Map<*, *>) {
                     val imageUrl = resultData["secure_url"] as? String
                     println("Cloudinary Upload Success: $imageUrl")
-                    callback(true, imageUrl)
+                    callback(true, imageUrl, null)
                 }
 
                 override fun onError(requestId: String, error: ErrorInfo) {
-                    println("Cloudinary Upload Error: ${error.description}")
-                    callback(false, null)
+                    val message = "Cloudinary Error: ${error.description}"
+                    println(message)
+                    callback(false, null, message)
                 }
 
                 override fun onReschedule(requestId: String, error: ErrorInfo) {

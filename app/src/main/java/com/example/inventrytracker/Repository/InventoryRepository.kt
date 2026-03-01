@@ -7,5 +7,5 @@ interface InventoryRepository {
     fun addInventoryItem(item: InventoryItem, callback: (Boolean) -> Unit)
     fun updateInventoryItem(item: InventoryItem, callback: (Boolean) -> Unit)
     fun deleteInventoryItem(itemId: String, callback: (Boolean) -> Unit)
-    fun uploadImage(image: ByteArray, callback: (Boolean, String?) -> Unit)
+    fun uploadImage(image: ByteArray, callback: (Boolean, String?, String?) -> Unit)
 }

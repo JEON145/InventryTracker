@@ -95,20 +95,20 @@ fun DashboardScreen(
             }
         },
         onUploadImageClick = { item, imageBytes ->
-            inventoryViewModel.uploadImageAndUpdateItem(item, imageBytes) { success ->
+            inventoryViewModel.uploadImageAndUpdateItem(item, imageBytes) { success, error ->
                 if (success) {
                     Toast.makeText(context, "Image uploaded", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "Image upload failed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, error ?: "Image upload failed", Toast.LENGTH_SHORT).show()
                 }
             }
         },
         onAddItemWithImageClick = { name, quantity, imageBytes ->
-            inventoryViewModel.addItemWithImage(name, quantity, imageBytes) { success ->
+            inventoryViewModel.addItemWithImage(name, quantity, imageBytes) { success, error ->
                 if (success) {
                     Toast.makeText(context, "Item and Image added!", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "Failed to add item with image", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, error ?: "Failed to add item with image", Toast.LENGTH_SHORT).show()
                 }
             }
         }
