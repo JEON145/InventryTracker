@@ -26,31 +26,35 @@ fun AssetImagePicker(context: Context, onImageSelected: (ByteArray) -> Unit) {
         }
     }
 
-    LazyRow(modifier = Modifier.padding(vertical = 8.dp)) {
-        items(imageFiles) { fileName ->
-            val bitmap = remember(fileName) {
-                try {
-                    val bytes = assetManager.open("inventory tracker/$fileName").use { it.readBytes() }
-                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                } catch (e: Exception) {
-                    null
+    if (imageFiles.isEmpty()) {
+        Text("No images found in assets/inventory tracker", modifier = Modifier.padding(16.dp))
+    } else {
+        LazyRow(modifier = Modifier.padding(vertical = 8.dp)) {
+            items(imageFiles) { fileName ->
+                val bitmap = remember(fileName) {
+                    try {
+                        val bytes = assetManager.open("inventory tracker/$fileName").use { it.readBytes() }
+                        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    } catch (e: Exception) {
+                        null
+                    }
                 }
-            }
 
-            if (bitmap != null) {
-                Image(
-                    bitmap = bitmap.asImageBitmap(),
-                    contentDescription = fileName,
-                    modifier = Modifier
-                        .size(80.dp)
-                        .padding(4.dp)
-                        .clickable { 
-                            try {
-                                val bytes = assetManager.open("inventory tracker/$fileName").use { it.readBytes() }
-                                onImageSelected(bytes)
-                            } catch (e: Exception) {}
-                        }
-                )
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = fileName,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .padding(4.dp)
+                            .clickable { 
+                                try {
+                                    val bytes = assetManager.open("inventory tracker/$fileName").use { it.readBytes() }
+                                    onImageSelected(bytes)
+                                } catch (e: Exception) {}
+                            }
+                    )
+                }
             }
         }
     }
