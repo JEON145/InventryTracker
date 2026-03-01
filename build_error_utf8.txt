@@ -1,0 +1,139 @@
+﻿> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+
+> Task :app:compileDebugKotlin FAILED
+./gradlew : e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:177:31 Cannot infer type for 
+this parameter. Please specify it explicitly.
+At line:1 char:1
++ ./gradlew assembleDebug > build_error.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (e: file:///C:/U... it explicitly.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:177:31 Not enough information to infer 
+type argument for 'T'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:178:17 Cannot infer type for this 
+parameter. Please specify it explicitly.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:178:25 Cannot infer type for this 
+parameter. Please specify it explicitly.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:178:25 Not enough information to infer 
+type argument for 'B'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:178:39 Unresolved reference 'apple'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:179:27 Cannot infer type for this 
+parameter. Please specify it explicitly.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:179:27 Not enough information to infer 
+type argument for 'B'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:179:41 Unresolved reference 'avocado'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:180:26 Cannot infer type for this 
+parameter. Please specify it explicitly.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:180:26 Not enough information to infer 
+type argument for 'B'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:180:40 Unresolved reference 'banana'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:181:27 Cannot infer type for this 
+parameter. Please specify it explicitly.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:181:27 Not enough information to infer 
+type argument for 'B'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:181:41 Unresolved reference 'cabbage'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:182:25 Cannot infer type for this 
+parameter. Please specify it explicitly.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:182:25 Not enough information to infer 
+type argument for 'B'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:182:39 Unresolved reference 'grape'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:183:29 Cannot infer type for this 
+parameter. Please specify it explicitly.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:183:29 Not enough information to infer 
+type argument for 'B'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:183:43 Unresolved reference 'pineaple'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:185:25 Cannot infer type for this 
+parameter. Please specify it explicitly.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:185:25 Not enough information to infer 
+type argument for 'T'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:185:35 Cannot infer type for this 
+parameter. Please specify it explicitly.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:185:35 Function 'component1()' is 
+ambiguous for this expression: 
+fun <T> Array<out T>.component1(): T
+fun BooleanArray.component1(): Boolean
+fun ByteArray.component1(): Byte
+fun CharArray.component1(): Char
+fun DoubleArray.component1(): Double
+fun FloatArray.component1(): Float
+fun IntArray.component1(): Int
+fun LongArray.component1(): Long
+fun ShortArray.component1(): Short
+fun <T> List<T>.component1(): T
+fun <K, V> Map.Entry<K, V>.component1(): K
+fun UByteArray.component1(): UByte
+fun UIntArray.component1(): UInt
+fun ULongArray.component1(): ULong
+fun UShortArray.component1(): UShort.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:185:35 Function 'component2()' is 
+ambiguous for this expression: 
+fun <T> Array<out T>.component2(): T
+fun BooleanArray.component2(): Boolean
+fun ByteArray.component2(): Byte
+fun CharArray.component2(): Char
+fun DoubleArray.component2(): Double
+fun FloatArray.component2(): Float
+fun IntArray.component2(): Int
+fun LongArray.component2(): Long
+fun ShortArray.component2(): Short
+fun <T> List<T>.component2(): T
+fun <K, V> Map.Entry<K, V>.component2(): V
+fun UByteArray.component2(): UByte
+fun UIntArray.component2(): UInt
+fun ULongArray.component2(): ULong
+fun UShortArray.component2(): UShort.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:187:63 Unresolved reference 'context'.
+e: file:///C:/Users/Acer/OneDrive/Desktop/kotlinfinal/InventryTracker/app/src/main/java/com/example/inventrytracker/View/DashboardScreen.kt:323:9 No value passed for parameter 
+'onAddItemWithImageClick'.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 12s
+31 actionable tasks: 1 executed, 30 up-to-date

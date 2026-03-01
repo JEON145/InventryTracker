@@ -73,7 +73,7 @@ fun MainScreen(
         ) {
             composable(BottomNavItem.Dashboard.route) { DashboardScreen(inventoryViewModel, userViewModel, onLogout) }
             composable(BottomNavItem.Inventory.route) { InventryScreen(inventoryViewModel) }
-            composable(BottomNavItem.Profile.route) { ProfileScreen() }
+            composable(BottomNavItem.Profile.route) { ProfileScreen(userViewModel, onLogout) }
         }
     }
 }

@@ -102,6 +102,15 @@ fun DashboardScreen(
                     Toast.makeText(context, "Image upload failed", Toast.LENGTH_SHORT).show()
                 }
             }
+        },
+        onAddItemWithImageClick = { name, quantity, imageBytes ->
+            inventoryViewModel.addItemWithImage(name, quantity, imageBytes) { success ->
+                if (success) {
+                    Toast.makeText(context, "Item and Image added!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Failed to add item with image", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     )
 }
@@ -113,10 +122,12 @@ fun DashboardBody(
     onAddItemClick: (String, Int) -> Unit,
     onUpdateItemClick: (InventoryItem) -> Unit,
     onDeleteItemClick: (String) -> Unit,
-    onUploadImageClick: (InventoryItem, ByteArray) -> Unit
+    onUploadImageClick: (InventoryItem, ByteArray) -> Unit,
+    onAddItemWithImageClick: (String, Int, ByteArray) -> Unit
 ) {
     var newItemName by remember { mutableStateOf("") }
     var newItemQuantity by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
@@ -162,7 +173,29 @@ fun DashboardBody(
             Text("Add Item")
         }
 
-        LazyColumn {
+        Text("Quick Start (Add Item with Sample Photo):", fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            val sampleItems: List<Pair<String, Int>> = listOf(
+                Pair("Sample 1", com.example.inventrytracker.R.drawable.img),
+                Pair("Sample 2", com.example.inventrytracker.R.drawable.img_1)
+            )
+            sampleItems.forEach { (name, resId) ->
+                Button(onClick = {
+                    val bitmap = BitmapFactory.decodeResource(context.resources, resId)
+                    val out = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                    val imageBytes = out.toByteArray()
+                    
+                    onAddItemWithImageClick(name, 1, imageBytes)
+                }) {
+                    Text(name)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LazyColumn(modifier = Modifier.weight(1f)) {
             items(items) { item ->
                 InventoryItemView(
                     item = item,
@@ -208,6 +241,14 @@ fun InventoryItemView(
                 AsyncImage(
                     model = item.imageUrl,
                     contentDescription = "Inventory Item Image",
+                    placeholder = coil.compose.rememberAsyncImagePainter(R.drawable.img),
+                    error = coil.compose.rememberAsyncImagePainter(R.drawable.img),
+                    modifier = Modifier.height(150.dp).fillMaxWidth().padding(bottom = 8.dp)
+                )
+            } else {
+                AsyncImage(
+                    model = R.drawable.img,
+                    contentDescription = "Placeholder Image",
                     modifier = Modifier.height(150.dp).fillMaxWidth().padding(bottom = 8.dp)
                 )
             }
@@ -254,33 +295,9 @@ fun InventoryItemView(
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
                     Button(onClick = { imagePicker.launch("image/*") }) {
-                        Text(if (item.imageUrl.isNotBlank()) "Gallery" else "Add Image")
-                    }
-                    Button(onClick = {
-                        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.apple)
-                        val out = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                        onUploadImageClick(item, out.toByteArray())
-                    }) {
-                        Text("Apple")
-                    }
-                    Button(onClick = {
-                        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.avocado)
-                        val out = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                        onUploadImageClick(item, out.toByteArray())
-                    }) {
-                        Text("Avocado")
-                    }
-                    Button(onClick = {
-                        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.banana)
-                        val out = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                        onUploadImageClick(item, out.toByteArray())
-                    }) {
-                        Text("Banana")
+                        Text(if (item.imageUrl.isNotBlank()) "Change Image" else "Add Image")
                     }
                 }
             }
@@ -300,6 +317,7 @@ fun DashboardPreview() {
         onAddItemClick = { _, _ -> },
         onUpdateItemClick = {},
         onDeleteItemClick = {},
-        onUploadImageClick = { _, _ -> }
+        onUploadImageClick = { _, _ -> },
+        onAddItemWithImageClick = { _, _, _ -> }
     )
 }

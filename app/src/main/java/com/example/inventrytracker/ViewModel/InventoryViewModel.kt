@@ -34,6 +34,29 @@ class InventoryViewModel(private val repository: InventoryRepository) : ViewMode
         repository.deleteInventoryItem(itemId, callback)
     }
 
+    fun addItemWithImage(name: String, quantity: Int, image: ByteArray, callback: (Boolean) -> Unit) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val newItem = InventoryItem(name = name, quantity = quantity, userId = userId)
+        
+        // 1. Add item to get the ID
+        repository.addInventoryItem(newItem) { success ->
+            if (success) {
+                // 2. Upload image
+                repository.uploadImage(image) { uploadSuccess, imageUrl ->
+                    if (uploadSuccess && imageUrl != null) {
+                        // 3. Update item with image URL
+                        val updatedItem = newItem.copy(imageUrl = imageUrl)
+                        repository.updateInventoryItem(updatedItem, callback)
+                    } else {
+                        callback(false)
+                    }
+                }
+            } else {
+                callback(false)
+            }
+        }
+    }
+
     fun uploadImageAndUpdateItem(item: InventoryItem, image: ByteArray, callback: (Boolean) -> Unit) {
         repository.uploadImage(image) { success, imageUrl ->
             if (success && imageUrl != null) {

@@ -19,9 +19,27 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.inventrytracker.ViewModel.UserViewModel
+import androidx.compose.runtime.*
+import com.example.inventrytracker.Model.User
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(userViewModel: UserViewModel, onLogout: () -> Unit) {
+    var userProfile by remember { mutableStateOf<User?>(null) }
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val email = currentUser?.email ?: ""
+
+    LaunchedEffect(email) {
+        if (email.isNotEmpty()) {
+            userViewModel.getUserById(email) { success, message, user ->
+                if (success) {
+                    userProfile = user
+                }
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -48,13 +66,13 @@ fun ProfileScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Store Owner",
+            text = userProfile?.fullName ?: "Loading...",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
-
+ 
         Text(
-            text = "owner@store.com",
+            text = userProfile?.email ?: email,
             fontSize = 14.sp,
             color = Color.Gray
         )
@@ -83,7 +101,7 @@ fun ProfileScreen() {
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedButton(
-            onClick = { },
+            onClick = { onLogout() },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.outlinedButtonColors(

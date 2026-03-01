@@ -68,10 +68,12 @@ class InventoryRepositoryImpl : InventoryRepository {
 
                 override fun onSuccess(requestId: String, resultData: Map<*, *>) {
                     val imageUrl = resultData["secure_url"] as? String
+                    println("Cloudinary Upload Success: $imageUrl")
                     callback(true, imageUrl)
                 }
 
                 override fun onError(requestId: String, error: ErrorInfo) {
+                    println("Cloudinary Upload Error: ${error.description}")
                     callback(false, null)
                 }
 

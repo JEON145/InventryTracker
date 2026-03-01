@@ -80,12 +80,14 @@ fun InventoryGridItem(item: InventoryItem) {
     ) {
         Column {
             AsyncImage(
-                model = item.imageUrl.ifEmpty { R.drawable.img }, // Placeholder if no image
+                model = item.imageUrl.ifEmpty { R.drawable.img },
                 contentDescription = item.name,
+                placeholder = coil.compose.rememberAsyncImagePainter(R.drawable.img),
+                error = coil.compose.rememberAsyncImagePainter(R.drawable.img),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1f) // Makes the image square
+                    .aspectRatio(1f)
             )
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(

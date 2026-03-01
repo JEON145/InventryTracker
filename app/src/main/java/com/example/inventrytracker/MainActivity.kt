@@ -57,8 +57,8 @@ fun AppNavigation() {
             StoreRegistrationScreen(
                 userViewModel = userViewModel,
                 onRegisterSuccess = {
-                    navController.navigate("main") {
-                        popUpTo("login") { inclusive = true }
+                    navController.navigate("login") {
+                        popUpTo("register") { inclusive = true }
                     }
                 },
                 onNavigateToLogin = {
