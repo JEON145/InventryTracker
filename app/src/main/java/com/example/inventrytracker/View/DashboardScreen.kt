@@ -1,9 +1,6 @@
 package com.example.inventrytracker.View
 
-import android.net.Uri
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -205,16 +202,6 @@ fun DashboardBody(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Asset image picker from assets/inventory tracker folder
-        AssetImagePicker(context = context) { imageBytes ->
-            // Use current name/quantity fields for adding the item with the selected image
-            if (newItemName.isNotBlank()) {
-                onAddItemWithImageClick(newItemName, newItemQuantity.toIntOrNull() ?: 0, imageBytes)
-                newItemName = ""
-                newItemQuantity = ""
-            }
-        }
 
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(items) { item ->
