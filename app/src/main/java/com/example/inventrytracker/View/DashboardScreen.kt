@@ -139,6 +139,39 @@ fun DashboardBody(
             }
         }
 
+        var itemUpdatingImage by remember { mutableStateOf<InventoryItem?>(null) }
+
+        // Shared Asset Gallery at the Top
+        AssetImagePicker(context = context) { imageBytes ->
+            if (itemUpdatingImage != null) {
+                onUploadImageClick(itemUpdatingImage!!, imageBytes)
+                itemUpdatingImage = null
+            } else if (newItemName.isNotBlank()) {
+                onAddItemWithImageClick(newItemName, newItemQuantity.toIntOrNull() ?: 0, imageBytes)
+                newItemName = ""
+                newItemQuantity = ""
+            } else {
+                Toast.makeText(context, "Fill in Item Name first to add with this image", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        if (itemUpdatingImage != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Updating image for: ${itemUpdatingImage!!.name}",
+                    fontWeight = FontWeight.Bold,
+                    color = androidx.compose.ui.graphics.Color.Blue
+                )
+                Button(onClick = { itemUpdatingImage = null }) {
+                    Text("Cancel")
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.padding(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -168,7 +201,7 @@ fun DashboardBody(
             },
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
         ) {
-            Text("Add Item")
+            Text("Add Item Without Image")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -189,7 +222,7 @@ fun DashboardBody(
                     item = item,
                     onUpdateItemClick = onUpdateItemClick,
                     onDeleteItemClick = onDeleteItemClick,
-                    onUploadImageClick = onUploadImageClick
+                    onChangeImageClick = { itemUpdatingImage = it }
                 )
             }
         }
@@ -201,13 +234,11 @@ fun InventoryItemView(
     item: InventoryItem,
     onUpdateItemClick: (InventoryItem) -> Unit,
     onDeleteItemClick: (String) -> Unit,
-    onUploadImageClick: (InventoryItem, ByteArray) -> Unit
+    onChangeImageClick: (InventoryItem) -> Unit
 ) {
     var isEditing by remember { mutableStateOf(false) }
     var editedName by remember { mutableStateOf(item.name) }
     var editedQuantity by remember { mutableStateOf(item.quantity.toString()) }
-    var isPickingImage by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -270,14 +301,8 @@ fun InventoryItemView(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
-                    Button(onClick = { isPickingImage = !isPickingImage }) {
+                    Button(onClick = { onChangeImageClick(item) }) {
                         Text(if (item.imageUrl.isNotBlank()) "Change Image" else "Add Image")
-                    }
-                }
-                if (isPickingImage) {
-                    AssetImagePicker(context = context) { imageBytes ->
-                        onUploadImageClick(item, imageBytes)
-                        isPickingImage = false
                     }
                 }
             }

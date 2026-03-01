@@ -45,6 +45,7 @@ import androidx.compose.material3.Button
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import android.widget.Toast
 
 @Composable
 fun InventryScreen(inventoryViewModel: InventoryViewModel) {
@@ -54,6 +55,9 @@ fun InventryScreen(inventoryViewModel: InventoryViewModel) {
         inventoryViewModel.startListeningForInventory()
     }
 
+    val context = LocalContext.current
+    var itemUpdatingImage by remember { mutableStateOf<InventoryItem?>(null) }
+
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
             text = "Your Inventory",
@@ -61,7 +65,41 @@ fun InventryScreen(inventoryViewModel: InventoryViewModel) {
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Shared Asset Gallery at the Top
+        AssetImagePicker(context = context) { imageBytes ->
+            if (itemUpdatingImage != null) {
+                inventoryViewModel.uploadImageAndUpdateItem(itemUpdatingImage!!, imageBytes) { success, error ->
+                    if (success) {
+                        itemUpdatingImage = null
+                    } else {
+                        Toast.makeText(context, error ?: "Upload failed", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                Toast.makeText(context, "Select an item below first to change its image", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        if (itemUpdatingImage != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Updating image for: ${itemUpdatingImage!!.name}",
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Blue
+                )
+                Button(onClick = { itemUpdatingImage = null }) {
+                    Text("Cancel")
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -70,10 +108,8 @@ fun InventryScreen(inventoryViewModel: InventoryViewModel) {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(items) { item ->
-                InventoryGridItem(item) { imageBytes ->
-                    inventoryViewModel.uploadImageAndUpdateItem(item, imageBytes) { success, error ->
-                        // Optional: Show toast
-                    }
+                InventoryGridItem(item) {
+                    itemUpdatingImage = item
                 }
             }
         }
@@ -81,10 +117,7 @@ fun InventryScreen(inventoryViewModel: InventoryViewModel) {
 }
 
 @Composable
-fun InventoryGridItem(item: InventoryItem, onImageSelected: (ByteArray) -> Unit) {
-    val context = LocalContext.current
-    var isPickingImage by remember { mutableStateOf(false) }
-
+fun InventoryGridItem(item: InventoryItem, onSelectForImageUpdate: () -> Unit) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -116,18 +149,11 @@ fun InventoryGridItem(item: InventoryItem, onImageSelected: (ByteArray) -> Unit)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
-                    onClick = { isPickingImage = !isPickingImage },
+                    onClick = onSelectForImageUpdate,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(text = if (item.imageUrl.isEmpty()) "Add Image" else "Change", fontSize = 12.sp)
-                }
-
-                if (isPickingImage) {
-                    AssetImagePicker(context = context) { imageBytes ->
-                        onImageSelected(imageBytes)
-                        isPickingImage = false
-                    }
                 }
             }
         }
