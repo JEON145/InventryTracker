@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -57,6 +58,8 @@ fun InventryScreen(inventoryViewModel: InventoryViewModel) {
 
     val context = LocalContext.current
     var itemUpdatingImage by remember { mutableStateOf<InventoryItem?>(null) }
+    var selectedImageFileName by remember { mutableStateOf<String?>(null) }
+    var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
@@ -68,33 +71,60 @@ fun InventryScreen(inventoryViewModel: InventoryViewModel) {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Shared Asset Gallery at the Top
-        AssetImagePicker(context = context) { imageBytes ->
-            if (itemUpdatingImage != null) {
-                inventoryViewModel.uploadImageAndUpdateItem(itemUpdatingImage!!, imageBytes) { success, error ->
-                    if (success) {
-                        itemUpdatingImage = null
-                    } else {
-                        Toast.makeText(context, error ?: "Upload failed", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } else {
-                Toast.makeText(context, "Select an item below first to change its image", Toast.LENGTH_SHORT).show()
-            }
+        AssetImagePicker(
+            context = context,
+            selectedFileName = selectedImageFileName
+        ) { fileName, imageBytes ->
+            selectedImageFileName = fileName
+            selectedImageBytes = imageBytes
+            Toast.makeText(context, "Selected Image: $fileName", Toast.LENGTH_SHORT).show()
         }
 
-        if (itemUpdatingImage != null) {
+        if (itemUpdatingImage != null || selectedImageFileName != null) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                val statusText = if (itemUpdatingImage != null && selectedImageFileName != null) {
+                    "Updating ${itemUpdatingImage!!.name} with $selectedImageFileName"
+                } else if (itemUpdatingImage != null) {
+                    "Ready to update: ${itemUpdatingImage!!.name} (Pick an image above)"
+                } else {
+                    "Selected: $selectedImageFileName (Pick an item below)"
+                }
+
                 Text(
-                    text = "Updating image for: ${itemUpdatingImage!!.name}",
+                    text = statusText,
                     fontWeight = FontWeight.Bold,
                     color = Color.Blue
                 )
-                Button(onClick = { itemUpdatingImage = null }) {
-                    Text("Cancel")
+                
+                Row {
+                    if (itemUpdatingImage != null && selectedImageBytes != null) {
+                        Button(onClick = {
+                            inventoryViewModel.uploadImageAndUpdateItem(itemUpdatingImage!!, selectedImageBytes!!) { success, error ->
+                                if (success) {
+                                    itemUpdatingImage = null
+                                    selectedImageFileName = null
+                                    selectedImageBytes = null
+                                    Toast.makeText(context, "Update Successful!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, error ?: "Upload failed", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }) {
+                            Text("Update NOW")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    Button(onClick = { 
+                        itemUpdatingImage = null 
+                        selectedImageFileName = null
+                        selectedImageBytes = null
+                    }) {
+                        Text("Cancel")
+                    }
                 }
             }
         }

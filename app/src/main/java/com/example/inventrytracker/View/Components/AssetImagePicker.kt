@@ -24,9 +24,15 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.graphics.Color
 
 @Composable
-fun AssetImagePicker(context: Context, onImageSelected: (ByteArray) -> Unit) {
+fun AssetImagePicker(
+    context: Context, 
+    selectedFileName: String? = null,
+    onImageSelected: (String, ByteArray) -> Unit
+) {
     // List all files in the assets/inventory tracker directory
     val assetManager = context.assets
     val imageFiles = remember { 
@@ -55,6 +61,7 @@ fun AssetImagePicker(context: Context, onImageSelected: (ByteArray) -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(imageFiles) { fileName ->
+                    val isSelected = fileName == selectedFileName
                     val bitmap = remember(fileName) {
                         try {
                             val bytes = assetManager.open("inventory tracker/$fileName").use { it.readBytes() }
@@ -67,14 +74,15 @@ fun AssetImagePicker(context: Context, onImageSelected: (ByteArray) -> Unit) {
                     if (bitmap != null) {
                         Card(
                             shape = RoundedCornerShape(8.dp),
-                            elevation = CardDefaults.cardElevation(4.dp),
+                            elevation = CardDefaults.cardElevation(if (isSelected) 8.dp else 4.dp),
+                            border = if (isSelected) BorderStroke(3.dp, androidx.compose.ui.graphics.Color.Blue) else null,
                             modifier = Modifier
                                 .size(100.dp)
                                 .padding(2.dp)
                                 .clickable { 
                                     try {
                                         val bytes = assetManager.open("inventory tracker/$fileName").use { it.readBytes() }
-                                        onImageSelected(bytes)
+                                        onImageSelected(fileName, bytes)
                                     } catch (e: Exception) {}
                                 }
                         ) {

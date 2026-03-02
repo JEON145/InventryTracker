@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -137,34 +138,42 @@ fun DashboardBody(
         }
 
         var itemUpdatingImage by remember { mutableStateOf<InventoryItem?>(null) }
+        var selectedImageFileName by remember { mutableStateOf<String?>(null) }
+        var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
 
         // Shared Asset Gallery at the Top
-        AssetImagePicker(context = context) { imageBytes ->
-            if (itemUpdatingImage != null) {
-                onUploadImageClick(itemUpdatingImage!!, imageBytes)
-                itemUpdatingImage = null
-            } else if (newItemName.isNotBlank()) {
-                onAddItemWithImageClick(newItemName, newItemQuantity.toIntOrNull() ?: 0, imageBytes)
-                newItemName = ""
-                newItemQuantity = ""
-            } else {
-                Toast.makeText(context, "Fill in Item Name first to add with this image", Toast.LENGTH_SHORT).show()
-            }
+        AssetImagePicker(
+            context = context,
+            selectedFileName = selectedImageFileName
+        ) { fileName, imageBytes ->
+            selectedImageFileName = fileName
+            selectedImageBytes = imageBytes
+            Toast.makeText(context, "Selected Image: $fileName", Toast.LENGTH_SHORT).show()
         }
 
-        if (itemUpdatingImage != null) {
+        if (itemUpdatingImage != null || selectedImageFileName != null) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                val statusText = if (itemUpdatingImage != null) {
+                    "Updating image for: ${itemUpdatingImage!!.name}"
+                } else {
+                    "Selected Image: $selectedImageFileName"
+                }
+                
                 Text(
-                    text = "Updating image for: ${itemUpdatingImage!!.name}",
+                    text = statusText,
                     fontWeight = FontWeight.Bold,
-                    color = androidx.compose.ui.graphics.Color.Blue
+                    color = Color.Blue
                 )
-                Button(onClick = { itemUpdatingImage = null }) {
-                    Text("Cancel")
+                Button(onClick = { 
+                    itemUpdatingImage = null 
+                    selectedImageFileName = null
+                    selectedImageBytes = null
+                }) {
+                    Text("Clear Selection")
                 }
             }
         }
@@ -190,7 +199,23 @@ fun DashboardBody(
             onClick = {
                 val name = newItemName
                 val quantity = newItemQuantity.toIntOrNull() ?: 0
-                if (name.isNotBlank()) {
+                if (name.isBlank()) {
+                    Toast.makeText(context, "Please enter Item Name", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+                
+                if (itemUpdatingImage != null && selectedImageBytes != null) {
+                    onUploadImageClick(itemUpdatingImage!!, selectedImageBytes!!)
+                    itemUpdatingImage = null
+                    selectedImageFileName = null
+                    selectedImageBytes = null
+                } else if (selectedImageBytes != null) {
+                    onAddItemWithImageClick(name, quantity, selectedImageBytes!!)
+                    newItemName = ""
+                    newItemQuantity = ""
+                    selectedImageFileName = null
+                    selectedImageBytes = null
+                } else {
                     onAddItemClick(name, quantity)
                     newItemName = ""
                     newItemQuantity = ""
@@ -198,7 +223,12 @@ fun DashboardBody(
             },
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
         ) {
-            Text("Add Item Without Image")
+            val buttonText = when {
+                itemUpdatingImage != null && selectedImageBytes != null -> "Update Image for ${itemUpdatingImage!!.name}"
+                selectedImageBytes != null -> "Add Item with Selection"
+                else -> "Add Item Without Image"
+            }
+            Text(buttonText)
         }
 
         Spacer(modifier = Modifier.height(16.dp))

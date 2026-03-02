@@ -4,10 +4,10 @@ import android.content.Context
 import com.cloudinary.android.MediaManager
 
 object CloudinaryConfig {
-    private const val CLOUD_NAME = "dfdr4hwh"
+    private const val CLOUD_NAME = "dfdr4hwhj"
     private const val API_KEY = "527637818238182"
     private const val API_SECRET = "JKQWLEAVRlSkVDDo4hm6J-AlqGs"
-    const val UPLOAD_PRESET = "ea982fe7-fdb5-44c7-93e3-db6f799d6972"
+    const val UPLOAD_PRESET = "photos"
 
     fun initialize(context: Context) {
         val config = mapOf(
